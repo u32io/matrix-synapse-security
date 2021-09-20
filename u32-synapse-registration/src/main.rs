@@ -13,9 +13,8 @@ struct Invite {
 async fn get_index(invite: web::Query<Invite>, app_state: web::Data<AppState>) -> impl Responder {
     use std::fs;
     println!("GET /");
-
-    let secret = &app_state.secret;
     let client_secret = &invite.invitation;
+    let secret = &app_state.secret;
 
     match client_secret.eq(secret) {
         true => HttpResponse::Ok().body(fs::read_to_string("static/index.html").unwrap()),
