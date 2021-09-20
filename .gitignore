@@ -1,4 +1,8 @@
 .git
 .idea
+
+release
+*.tar
+
 target/
 config.json
