@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+    <div>
+      <form action="/" method="POST">
+          <div>
+              <label for="user-name">Username: </label>
+              <input type="text" name="user_name" id="user-name" required minlength="4" maxlength="32" size="16">
+          </div>
+          <div>
+              <label for="password">Password: </label>
+              <input type="password" name="password" id="password" required minlength="8" maxlength="128" size="16">
+          </div>
+          <div>
+              <label for="re-password">Retype-Password: </label>
+              <input type="password" name="re_password" id="re-password" required minlength="8" maxlength="128" size="16">
+          </div>
+          <div>
+              <input type="submit" value="Register">
+          </div>
+      </form>
+    </div>
+</body>
+</html>
