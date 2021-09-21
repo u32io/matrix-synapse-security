@@ -4,6 +4,16 @@ use actix_web::http::{Uri, StatusCode};
 use serde::de::DeserializeOwned;
 use actix_web::client::{Client};
 use actix_web::dev::HttpResponseBuilder;
+use askama::Template;
+
+#[derive(Template)]
+#[template(path = "index.html")]
+struct RegisterView {
+    title: String, //"Register",
+    pass_mismatch: bool, //false,
+    query_key: String, //"invitation",
+    query_value: String //"ABCDE"
+}
 
 #[derive(Deserialize)]
 struct Invite {
@@ -17,7 +27,7 @@ async fn get_index(invite: web::Query<Invite>, app_state: web::Data<AppState>) -
     let secret = &app_state.secret;
 
     match client_secret.eq(secret) {
-        true => HttpResponse::Ok().body(fs::read_to_string("static/index.html").unwrap()),
+        true => HttpResponse::Ok().body(fs::read_to_string("../templates/index.html").unwrap()),
         false => HttpResponse::Forbidden().finish(),
     }
 }
@@ -36,15 +46,15 @@ async fn post_index(form: web::Form<RegisterForm>, app_state: web::Data<AppState
     match &form.password.eq(&form.re_password) {
         true => {
             match forward_req(&client,&form, &app_state.register).await {
-                StatusCode::OK => HttpResponse::TemporaryRedirect()
+                StatusCode::OK => HttpResponse::SeeOther()
                     .header("Location", app_state.redirect.to_string())
                     .finish(),
                 StatusCode::INTERNAL_SERVER_ERROR => HttpResponse::InternalServerError()
-                    .body(fs::read_to_string("static/500.html").unwrap()),
+                    .body(fs::read_to_string("../templates/500.liquid").unwrap()),
                 status => HttpResponseBuilder::new(status).finish()
             }
         },
-        false => HttpResponse::BadRequest().body(fs::read_to_string("static/pass_mismatch.html").unwrap())
+        false => HttpResponse::BadRequest().body(fs::read_to_string("../templates/pass_mismatch.liquid").unwrap())
     }
 }
 
@@ -66,25 +76,28 @@ async fn forward_req(client: &Client, req: &RegisterForm, uri: &Uri) -> StatusCo
         username: req.user_name.to_string(),
         password: req.password.to_string(),
         auth: AuthDTO {
-            auth_type: "m.login.password".to_string(),
+            auth_type: "m.login.dummy".to_string(),
         }
     };
 
-    match client.post(uri)
-        .send_json(&dto)
-        .await
-        .map_err(|e|{
-            println!("Error: {:?}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        })
-        .and_then(|res| {
-            println!("Response: {}", res.status());
-            Ok(res.status())
-        })
-    {
-        Ok(s) => s,
-        Err(s) => s
+    println!("Forward Request: {} {}", uri, serde_json::to_string(&dto).unwrap());
+
+    let res = client.post(uri).send_json(&dto).await;
+    if res.is_err() {
+        println!("Error: {:?}", res.unwrap_err());
+        return StatusCode::INTERNAL_SERVER_ERROR;
     }
+
+    let mut res = res.unwrap();
+    let body = res.body().await;
+    if body.is_err() {
+        println!("Error: {:?}", body.unwrap_err());
+        return StatusCode::INTERNAL_SERVER_ERROR;
+    }
+    let body = body.unwrap();
+    println!("Client Response: {} {}", res.status(),  String::from_utf8_lossy(body.as_ref()));
+
+    res.status()
 }
 
 #[derive(Deserialize, Clone)]

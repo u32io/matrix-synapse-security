@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>{{ title }}</title>
 </head>
 <body>
+{% if pass_mismatch == true %}
     <div>
-      <form action="/" method="POST">
+        The passwords you entered do not match.
+    </div>
+{% endif %}
+    <div>
+      <form action="/?{{ query_key }}={{ query_value }}" method="POST">
           <div>
               <label for="user-name">Username: </label>
               <input type="text" name="user_name" id="user-name" required minlength="4" maxlength="32" size="16">
