@@ -1,10 +1,10 @@
-use actix_web::{App, HttpServer, web, Responder, HttpResponse};
-use serde::{Deserialize, Serialize};
-use actix_web::http::{Uri, StatusCode};
-use serde::de::DeserializeOwned;
-use actix_web::client::{Client};
+use actix_web::client::Client;
 use actix_web::dev::HttpResponseBuilder;
+use actix_web::http::{StatusCode, Uri};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use askama::Template;
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 use std::ops::Fn;
 
 #[derive(Template)]
@@ -22,14 +22,15 @@ impl Default for RegisterView<'_> {
             title: "Register",
             pass_mismatch: false,
             query_key: "invite",
-            query_value: ""
+            query_value: "",
         }
     }
 }
 
-impl <'view>RegisterView<'view> {
+impl<'view> RegisterView<'view> {
     pub fn with<F>(mut self, f: F) -> Self
-        where F: Fn(&mut Self) -> ()
+    where
+        F: Fn(&mut Self) -> (),
     {
         f(&mut self);
         self

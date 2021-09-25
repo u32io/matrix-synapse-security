@@ -1,13 +1,13 @@
-use actix_web::{App, HttpServer, web, Responder, HttpResponse};
-use serde::{Deserialize, Serialize};
-use actix_web::http::{Uri, StatusCode};
-use serde::de::DeserializeOwned;
-use actix_web::client::{Client};
+use actix_web::client::Client;
 use actix_web::dev::HttpResponseBuilder;
+use actix_web::http::{StatusCode, Uri};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use askama::Template;
-use std::ops::Fn;
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 use std::any::Any;
 use std::iter::Map;
+use std::ops::Fn;
 
 #[derive(Deserialize)]
 pub struct InviteDTO {
@@ -22,7 +22,9 @@ pub struct AuthDTO {
 
 impl Default for AuthDTO {
     fn default() -> Self {
-        AuthDTO { auth_type: String::from("m.login.dummy") }
+        AuthDTO {
+            auth_type: String::from("m.login.dummy"),
+        }
     }
 }
 
@@ -35,7 +37,7 @@ pub struct RegisterDTO {
 
 impl RegisterDTO {
     pub fn new_default(user: String, pass: String) -> Self {
-         Self {
+        Self {
             username: user,
             password: pass,
             auth: AuthDTO::default(),
@@ -50,8 +52,9 @@ pub struct RegisterFormDTO {
     pub re_password: String,
 }
 
-fn mutate<T,F>(mut mutable: T, f: F) -> T
-    where F : Fn(&mut T) -> T
+fn mutate<T, F>(mut mutable: T, f: F) -> T
+where
+    F: Fn(&mut T) -> T,
 {
     f(&mut mutable);
     mutable

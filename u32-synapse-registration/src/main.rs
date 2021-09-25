@@ -1,14 +1,14 @@
-use actix_web::{App, HttpServer, web, Responder, HttpResponse};
-use serde::{Deserialize, Serialize};
-use actix_web::http::{Uri, StatusCode};
-use serde::de::DeserializeOwned;
-use actix_web::client::{Client};
+use actix_web::client::Client;
 use actix_web::dev::HttpResponseBuilder;
+use actix_web::http::{StatusCode, Uri};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use askama::Template;
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 use std::ops::Fn;
-use u32_synapse_registration::{view::RegisterView, controller};
-use u32_synapse_registration::dto::{InviteDTO, RegisterFormDTO, RegisterDTO, AuthDTO};
-use u32_synapse_registration::app::{read_file_as_unchecked, Config, AppState};
+use u32_synapse_registration::app::{read_file_as_unchecked, AppState, Config};
+use u32_synapse_registration::dto::{AuthDTO, InviteDTO, RegisterDTO, RegisterFormDTO};
+use u32_synapse_registration::{controller, view::RegisterView};
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -17,7 +17,7 @@ async fn main() -> std::io::Result<()> {
 
     println!("=== u32.io Synapse Registration ===");
 
-    HttpServer::new(move ||{
+    HttpServer::new(move || {
         let app_state = AppState::from(config.clone());
 
         App::new()

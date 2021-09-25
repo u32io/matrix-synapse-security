@@ -1,6 +1,6 @@
-use serde::de::DeserializeOwned;
-use serde::{Deserialize};
 use actix_web::http::Uri;
+use serde::de::DeserializeOwned;
+use serde::Deserialize;
 use std::fs::File;
 use std::io::BufReader;
 
