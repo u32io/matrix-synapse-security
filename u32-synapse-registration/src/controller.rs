@@ -4,9 +4,9 @@ use crate::view::{ErrorView, RegisterView};
 use actix_web::client::Client;
 use actix_web::dev::{HttpResponseBuilder, ResponseBody};
 use actix_web::http::{StatusCode, Uri};
-use actix_web::{web, HttpResponse, Responder, dev, http};
-use askama::Template;
 use actix_web::middleware::errhandlers::ErrorHandlerResponse;
+use actix_web::{dev, http, web, HttpResponse, Responder};
+use askama::Template;
 
 pub async fn get_index(
     invite: web::Query<InviteDTO>,
@@ -17,9 +17,8 @@ pub async fn get_index(
     let secret = &app_state.secret;
 
     match client_secret.eq(secret) {
-        true => HttpResponse::Ok()
-            .content_type("text/html")
-            .body(RegisterView::default()
+        true => HttpResponse::Ok().content_type("text/html").body(
+            RegisterView::default()
                 .with(|v| v.query_value = client_secret)
                 .render()
                 .unwrap(),
@@ -27,11 +26,14 @@ pub async fn get_index(
         false => HttpResponse::Forbidden()
             .content_type("text/html")
             // TODO: this error message ought to be configurable
-            .body(ErrorView::new(StatusCode::FORBIDDEN.as_u16(),
-                                 "Looks like you weren't invited here".to_string())
-            .render()
-            .unwrap(),
-        ),
+            .body(
+                ErrorView::new(
+                    StatusCode::FORBIDDEN.as_u16(),
+                    "Looks like you weren't invited here".to_string(),
+                )
+                .render()
+                .unwrap(),
+            ),
     }
 }
 
@@ -40,13 +42,11 @@ pub async fn post_index(
     app_state: web::Data<AppState>,
     client: web::Data<Client>,
 ) -> impl Responder {
-    
     println!("POST /register");
 
     if !&form.password.eq(&form.re_password) {
-        HttpResponse::BadRequest()
-            .content_type("text/html")
-            .body(RegisterView::default()
+        HttpResponse::BadRequest().content_type("text/html").body(
+            RegisterView::default()
                 .with(|v| {
                     v.pass_mismatch = true;
                     v.query_key = &app_state.secret;
