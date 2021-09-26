@@ -1,10 +1,4 @@
-
-
-
-
 use askama::Template;
-
-
 use std::ops::Fn;
 
 #[derive(Template)]
@@ -34,5 +28,23 @@ impl<'view> RegisterView<'view> {
     {
         f(&mut self);
         self
+    }
+}
+
+#[derive(Template)]
+#[template(path = "error.html")]
+pub struct ErrorView<'view> {
+    title: &'view str,
+    message: String,
+    pub status: u16,
+}
+
+impl <'view>ErrorView<'view> {
+    pub fn new(status: u16, message: String) -> Self {
+        ErrorView {
+            title: stringify!(status),
+            status,
+            message,
+        }
     }
 }
