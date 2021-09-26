@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["james.meyer"]
 edition = "2018"
 
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+
 [dependencies]
 actix-web = { version = "3", features = ["openssl"] }
 actix-rt = "1"
