@@ -2,6 +2,7 @@
 .idea
 
 release
+releases
 *.tar
 
 target/
