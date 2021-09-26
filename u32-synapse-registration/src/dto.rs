@@ -1,11 +1,4 @@
-
-
-
-
-
-
 use serde::{Deserialize, Serialize};
-
 
 use std::ops::Fn;
 

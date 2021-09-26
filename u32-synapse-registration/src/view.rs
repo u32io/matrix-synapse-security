@@ -39,7 +39,7 @@ pub struct ErrorView<'view> {
     pub status: u16,
 }
 
-impl <'view>ErrorView<'view> {
+impl<'view> ErrorView<'view> {
     pub fn new(status: u16, message: String) -> Self {
         ErrorView {
             title: stringify!(status),
