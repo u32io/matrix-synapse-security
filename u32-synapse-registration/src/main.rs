@@ -1,7 +1,7 @@
 use actix_web::client::Client;
-use actix_web::dev::Service;
-use actix_web::middleware::errhandlers::ErrorHandlers;
-use actix_web::{middleware, web, App, HttpServer};
+
+
+use actix_web::{web, App, HttpServer};
 use u32_synapse_registration::app::{read_file_as_unchecked, AppState, Config};
 use u32_synapse_registration::controller;
 

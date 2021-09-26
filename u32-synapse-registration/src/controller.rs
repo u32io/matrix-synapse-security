@@ -2,10 +2,10 @@ use crate::app::AppState;
 use crate::dto::{InviteDTO, RegisterDTO, RegisterFormDTO};
 use crate::view::{ErrorView, RegisterView};
 use actix_web::client::Client;
-use actix_web::dev::{HttpResponseBuilder, ResponseBody};
+use actix_web::dev::{HttpResponseBuilder};
 use actix_web::http::{StatusCode, Uri};
-use actix_web::middleware::errhandlers::ErrorHandlerResponse;
-use actix_web::{dev, http, web, HttpResponse, Responder};
+
+use actix_web::{web, HttpResponse, Responder};
 use askama::Template;
 
 pub async fn get_index(
