@@ -15,7 +15,7 @@
             <h1>Create an account</h1>
         </div>
         <div class="row justify-content-md-center">
-            <form id="form-login" action="/?{{ query_key }}={{ query_value }}" method="POST">
+            <form id="form-login" action="/{{ view }}?{{ query_key }}={{ query_value }}" method="POST">
                 <div class="mb-3">
                     <label for="user-name" class="form-label">Username</label>
                     <input type="text" class="form-control" name="user_name" id="user-name" required minlength="4" maxlength="32" size="16">

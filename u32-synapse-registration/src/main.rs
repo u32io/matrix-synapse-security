@@ -1,10 +1,9 @@
 use actix_web::client::Client;
-
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-
+use actix_web::{web, middleware, App, HttpServer};
 use u32_synapse_registration::app::{read_file_as_unchecked, AppState, Config};
-
 use u32_synapse_registration::controller;
+use actix_web::middleware::errhandlers::ErrorHandlers;
+use actix_web::dev::Service;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -19,8 +18,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .data(app_state)
             .data(Client::default())
-            .route("/", web::get().to(controller::get_index))
-            .route("/", web::post().to(controller::post_index))
+            //.wrap()
+            .route("/register", web::get().to(controller::get_index))
+            .route("/register", web::post().to(controller::post_index))
     })
     .bind(bind.as_str())?
     .run()

@@ -2,33 +2,33 @@ use crate::app::AppState;
 use crate::dto::{InviteDTO, RegisterDTO, RegisterFormDTO};
 use crate::view::{ErrorView, RegisterView};
 use actix_web::client::Client;
-use actix_web::dev::HttpResponseBuilder;
+use actix_web::dev::{HttpResponseBuilder, ResponseBody};
 use actix_web::http::{StatusCode, Uri};
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder, dev, http};
 use askama::Template;
-use std::fs::read_to_string;
+use actix_web::middleware::errhandlers::ErrorHandlerResponse;
 
 pub async fn get_index(
     invite: web::Query<InviteDTO>,
     app_state: web::Data<AppState>,
 ) -> impl Responder {
-    println!("GET /");
+    println!("GET /register");
     let client_secret = &invite.invitation;
     let secret = &app_state.secret;
 
     match client_secret.eq(secret) {
-        true => HttpResponse::Ok().body(
-            RegisterView::default()
+        true => HttpResponse::Ok()
+            .content_type("text/html")
+            .body(RegisterView::default()
                 .with(|v| v.query_value = client_secret)
                 .render()
                 .unwrap(),
         ),
-        false => HttpResponse::Forbidden().body(
-            ErrorView::new(
-                500,
-                // TODO: this error message ought to be configurable
-                "Looks like you weren't invited here".to_string(),
-            )
+        false => HttpResponse::Forbidden()
+            .content_type("text/html")
+            // TODO: this error message ought to be configurable
+            .body(ErrorView::new(StatusCode::FORBIDDEN.as_u16(),
+                                 "Looks like you weren't invited here".to_string())
             .render()
             .unwrap(),
         ),
@@ -40,12 +40,13 @@ pub async fn post_index(
     app_state: web::Data<AppState>,
     client: web::Data<Client>,
 ) -> impl Responder {
-    use std::fs;
-    println!("POST /");
+    
+    println!("POST /register");
 
     if !&form.password.eq(&form.re_password) {
-        HttpResponse::BadRequest().body(
-            RegisterView::default()
+        HttpResponse::BadRequest()
+            .content_type("text/html")
+            .body(RegisterView::default()
                 .with(|v| {
                     v.pass_mismatch = true;
                     v.query_key = &app_state.secret;
@@ -63,8 +64,11 @@ pub async fn post_index(
 
         match result {
             Err(err) => HttpResponseBuilder::new(StatusCode::from_u16(err.status as u16).unwrap())
+                .content_type("text/html")
                 .body(err.render().unwrap()),
             _ => HttpResponse::SeeOther()
+                // TODO: make an extension for http response builder for redirects
+                .content_type("text/html")
                 .header("Location", app_state.redirect.to_string())
                 .finish(),
         }

@@ -5,6 +5,7 @@ use std::ops::Fn;
 #[template(path = "index.html")]
 pub struct RegisterView<'view> {
     title: &'view str,
+    view: &'view str,
     pub pass_mismatch: bool,
     pub query_key: &'view str,
     pub query_value: &'view str,
@@ -13,9 +14,11 @@ pub struct RegisterView<'view> {
 impl Default for RegisterView<'_> {
     fn default() -> Self {
         Self {
+            // TODO: either make these values const or configurable
             title: "Register",
+            view: "register",
             pass_mismatch: false,
-            query_key: "invite",
+            query_key: "invitation",
             query_value: "",
         }
     }
