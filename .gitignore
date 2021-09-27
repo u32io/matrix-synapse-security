@@ -1,9 +1,10 @@
 .git
 .idea
 
+# hidden project items
 release
 releases
 *.tar
-
+config.bash
 target/
 config.json
