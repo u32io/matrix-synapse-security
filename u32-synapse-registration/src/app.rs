@@ -1,14 +1,14 @@
+use crate::Secret;
 use actix_web::http::Uri;
+use clap::{App, Arg, ArgMatches};
+use log::trace;
+use lombok::{Builder, Getter};
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use std::fs::File;
 use std::io::BufReader;
-use clap::{App, Arg, ArgMatches};
-use uuid::Uuid;
-use crate::Secret;
 use std::str::FromStr;
-use lombok::{Builder, Getter};
-use log::trace;
+use uuid::Uuid;
 
 pub const REDIRECT_URI: (&'static str, &str, &str) = ("REDIRECT_URI", "redirect-uri", "r");
 fn redirect_arg() -> Arg<'static, 'static> {
@@ -35,7 +35,7 @@ fn ip_arg() -> Arg<'static, 'static> {
         .takes_value(true)
 }
 
-pub const PORT: (&'static str, &str, &str, &str) = ("PORT", "port",  "p", "7676");
+pub const PORT: (&'static str, &str, &str, &str) = ("PORT", "port", "p", "7676");
 fn port_arg() -> Arg<'static, 'static> {
     Arg::with_name(PORT.0)
         .short(PORT.2)
@@ -45,7 +45,8 @@ fn port_arg() -> Arg<'static, 'static> {
 }
 
 /// The correct query name of the query string
-pub const SECRET_KEY: (&'static str, &str, &str, &str) = ("SECRET_KEY", "secret-key", "-k", "invitation");
+pub const SECRET_KEY: (&'static str, &str, &str, &str) =
+    ("SECRET_KEY", "secret-key", "-k", "invitation");
 fn secret_key_arg() -> Arg<'static, 'static> {
     Arg::with_name(SECRET_KEY.0)
         .long(SECRET_KEY.1)
@@ -56,7 +57,7 @@ fn secret_key_arg() -> Arg<'static, 'static> {
 /// SECRET has a default value that is loaded from a non-static lifetime
 pub const SECRET: (&'static str, &str) = ("SECRET", "secret");
 
-fn secret_arg<'a,'b>(secret: &'a str) -> Arg<'a,'b> {
+fn secret_arg<'a, 'b>(secret: &'a str) -> Arg<'a, 'b> {
     Arg::with_name(SECRET.0)
         .long(SECRET.1)
         .default_value(secret)
@@ -118,8 +119,8 @@ impl Default for Config {
 
 impl Config {
     pub fn opts<F>(mut self, f: F) -> Self
-        where
-            F: Fn(&mut Self) -> (),
+    where
+        F: Fn(&mut Self) -> (),
     {
         f(&mut self);
         self
@@ -138,8 +139,6 @@ pub struct AppState {
 
 impl AppState {
     pub fn new(conf: Config) -> Self {
-        Self {
-            conf,
-        }
+        Self { conf }
     }
 }
