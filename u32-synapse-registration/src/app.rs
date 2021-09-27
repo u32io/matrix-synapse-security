@@ -7,73 +7,111 @@ use clap::{App, Arg, ArgMatches};
 use uuid::Uuid;
 use crate::Secret;
 use std::str::FromStr;
+use lombok::{Builder, Getter};
+use log::trace;
 
-pub const CONFIG: (&'static str, &str, &str) = ("CONFIG", "config", "c");
-pub const PORT: (&'static str, &str, &str, &str) = ("PORT", "port",  "p", "7676");
-pub const IP: (&'static str, &str, &str) = ("IP", "ip", "127.0.0.1");
-/// The correct query name of the query string
-pub const SECRET_KEY: (&'static str, &str, &str, &str) = ("SECRET_KEY", "secret-key", "-k", "invitation");
-/// SECRET has a default value that is loaded from a non-static lifetime
-pub const SECRET: (&'static str, &str) = ("SECRET", "secret");
-/// path the user must navigate to in order to create an acc
-pub const REGISTER: (&'static str, &str, &str) = ("URI_PATH", "uri-path", "register");
-pub const REDIRECT: (&'static str, &str, &str) = ("REDIRECT", "redirect", "/");
-
-pub fn init_cli<'a, 'b>(secret: &'a Secret) -> App<'a, 'b> {
-    App::new("u32io Synapse Register Page")
-        .version("0.0.1")
-        .author("James M. <jamesjmeyer210@gmail.com>")
-        .arg(Arg::with_name(CONFIG.0)
-            .short(CONFIG.2)
-            .long(CONFIG.1)
-            .value_name("FILE")
-            .help("Sets the config file")
-            .takes_value(true))
-        .arg(Arg::with_name(IP.0)
-            .long(IP.1)
-            .default_value(IP.2)
-            .takes_value(true))
-        .arg(Arg::with_name(PORT.0)
-            .short(PORT.2)
-            .long(PORT.1)
-            .default_value(PORT.3)
-            .takes_value(true))
-        .arg(Arg::with_name(SECRET.0)
-            .long(SECRET.1)
-            .default_value(secret.0.as_str())
-            .takes_value(true))
-        .arg(Arg::with_name(REDIRECT.0)
-            .long(REDIRECT.1)
-            .default_value(REDIRECT.2)
-            .takes_value(true))
-        .arg(Arg::with_name(REGISTER.0)
-            .long(REGISTER.1)
-            .default_value(REGISTER.2).takes_value(true))
-        .arg(Arg::with_name(SECRET_KEY.0)
-            .long(SECRET_KEY.1)
-            .short(SECRET_KEY.2)
-            .default_value(SECRET_KEY.3))
+pub const REDIRECT_URI: (&'static str, &str, &str) = ("REDIRECT_URI", "redirect-uri", "r");
+fn redirect_arg() -> Arg<'static, 'static> {
+    Arg::with_name(REDIRECT_URI.0)
+        .long(REDIRECT_URI.1)
+        .short(REDIRECT_URI.2)
+        .required(true)
+        .takes_value(true)
 }
 
-#[derive(Debug, Clone)]
+pub const SYNAPSE_URI: (&'static str, &str) = ("SYNAPSE_URI", "synapse-uri");
+fn synapse_arg() -> Arg<'static, 'static> {
+    Arg::with_name(SYNAPSE_URI.0)
+        .long(SYNAPSE_URI.1)
+        .required(true)
+        .takes_value(true)
+}
+
+pub const IP: (&'static str, &str, &str) = ("IP", "ip", "127.0.0.1");
+fn ip_arg() -> Arg<'static, 'static> {
+    Arg::with_name(IP.0)
+        .long(IP.1)
+        .default_value(IP.2)
+        .takes_value(true)
+}
+
+pub const PORT: (&'static str, &str, &str, &str) = ("PORT", "port",  "p", "7676");
+fn port_arg() -> Arg<'static, 'static> {
+    Arg::with_name(PORT.0)
+        .short(PORT.2)
+        .long(PORT.1)
+        .default_value(PORT.3)
+        .takes_value(true)
+}
+
+/// The correct query name of the query string
+pub const SECRET_KEY: (&'static str, &str, &str, &str) = ("SECRET_KEY", "secret-key", "-k", "invitation");
+fn secret_key_arg() -> Arg<'static, 'static> {
+    Arg::with_name(SECRET_KEY.0)
+        .long(SECRET_KEY.1)
+        .short(SECRET_KEY.2)
+        .default_value(SECRET_KEY.3)
+}
+
+/// SECRET has a default value that is loaded from a non-static lifetime
+pub const SECRET: (&'static str, &str) = ("SECRET", "secret");
+
+fn secret_arg<'a,'b>(secret: &'a str) -> Arg<'a,'b> {
+    Arg::with_name(SECRET.0)
+        .long(SECRET.1)
+        .default_value(secret)
+        .takes_value(true)
+}
+
+/// path the user must navigate to in order to create an acc
+pub const URI_PATH: (&'static str, &str, &str) = ("URI_PATH", "uri-path", "register");
+fn uri_path_arg() -> Arg<'static, 'static> {
+    Arg::with_name(URI_PATH.0)
+        .long(URI_PATH.1)
+        .default_value(URI_PATH.2)
+        .takes_value(true)
+}
+
+pub const APP_NAME: &'static str = "u32 Private Register for Synapse";
+pub const APP_VERSION: &'static str = "0.0.1";
+pub const APP_AUTHOR: &'static str = "James M. <jamesjmeyer210@gmail.com>";
+pub const DEFAULT_ADDRESS: &'static str = "https://localhost:7676";
+
+pub fn init_cli<'a, 'b>(secret: &'a Secret) -> App<'a, 'b> {
+    App::new(APP_NAME)
+        .version(APP_VERSION)
+        .author(APP_AUTHOR)
+        .arg(redirect_arg())
+        .arg(synapse_arg())
+        .arg(ip_arg())
+        .arg(port_arg())
+        .arg(secret_arg(&secret.0))
+        .arg(uri_path_arg())
+        .arg(secret_key_arg())
+}
+
+#[derive(Debug, Clone, Builder)]
 pub struct Config {
     pub ip: String,
     pub port: String,
     pub secret_key: String,
-    pub secret: Uuid,
-    pub register: String,
+    pub secret: Secret,
+    pub uri_path: String,
     pub redirect: Uri,
+    pub synapse: Uri,
 }
 
 impl Default for Config {
     fn default() -> Self {
+        trace!("DEFAULT_ADDRESS={}", DEFAULT_ADDRESS);
         Config {
             ip: IP.2.to_string(),
             port: PORT.3.to_string(),
             secret_key: SECRET_KEY.3.to_string(),
-            secret: Uuid::new_v4(),
-            register: REGISTER.2.to_string(),
-            redirect: Uri::from_str(REDIRECT.2).unwrap()
+            secret: Secret(Uuid::new_v4().to_string()),
+            uri_path: URI_PATH.2.to_string(),
+            redirect: Uri::from_static(DEFAULT_ADDRESS),
+            synapse: Uri::from_static(DEFAULT_ADDRESS),
         }
     }
 }

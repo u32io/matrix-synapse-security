@@ -1050,6 +1050,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "lombok"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5d184b9d6ac8f1700d39cd9ea1845da913f7ad918c6b2a2fe39234dd31d88b60"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "lru-cache"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1961,7 +1972,9 @@ dependencies = [
  "askama",
  "askama_actix",
  "clap",
+ "derive_more",
  "log",
+ "lombok",
  "serde",
  "serde_json",
  "simple_logger",

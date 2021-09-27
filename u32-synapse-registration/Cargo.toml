@@ -20,3 +20,5 @@ serde = "1"
 serde_json = "1"
 askama = { version = "*", features = ["with-actix-web"] }
 askama_actix = "0.11"
+lombok = "0.3"
+derive_more = "0.99.16"
