@@ -7,6 +7,7 @@ use actix_web::http::{StatusCode, Uri};
 
 use actix_web::{web, HttpResponse, Responder};
 use askama::Template;
+use std::str::FromStr;
 
 pub async fn get_index(
     invite: web::Query<InviteDTO>,
@@ -14,7 +15,7 @@ pub async fn get_index(
 ) -> impl Responder {
     println!("GET /register");
     let client_secret = &invite.invitation;
-    let secret = &app_state.secret;
+    let secret = &app_state.conf.secret.to_string();
 
     match client_secret.eq(secret) {
         true => HttpResponse::Ok().content_type("text/html").body(
@@ -49,7 +50,7 @@ pub async fn post_index(
             RegisterView::default()
                 .with(|v| {
                     v.pass_mismatch = true;
-                    v.query_key = &app_state.secret;
+                    v.query_key = &app_state.conf.secret_key;
                 })
                 .render()
                 .unwrap(),
@@ -58,7 +59,7 @@ pub async fn post_index(
         let result = forward_req(
             &client,
             RegisterDTO::new_default(form.user_name.clone(), form.password.clone()),
-            &app_state.register,
+            &app_state.conf.redirect,
         )
         .await;
 
@@ -69,7 +70,7 @@ pub async fn post_index(
             _ => HttpResponse::SeeOther()
                 // TODO: make an extension for http response builder for redirects
                 .content_type("text/html")
-                .header("Location", app_state.redirect.to_string())
+                .header("Location", app_state.conf.redirect.to_string())
                 .finish(),
         }
     }
