@@ -1,17 +1,17 @@
 use actix_web::client::Client;
-use actix_web::http::uri::Scheme;
+
 use actix_web::http::Uri;
-use actix_web::test::config;
+
 use actix_web::{web, App, HttpServer};
-use log::{error, info, trace, warn};
+use log::{error, info};
 use simple_logger::SimpleLogger;
 use std::str::FromStr;
 use u32_synapse_registration::app::{
-    init_cli, read_file_as_unchecked, AppState, Config, DEFAULT_ADDRESS, IP, PORT, REDIRECT_URI,
+    init_cli, AppState, Config, DEFAULT_ADDRESS, IP, PORT, REDIRECT_URI,
     SECRET, SECRET_KEY, SYNAPSE_URI, URI_PATH,
 };
 use u32_synapse_registration::{controller, Secret};
-use uuid::Uuid;
+
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

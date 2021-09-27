@@ -7,7 +7,7 @@ use actix_web::http::{StatusCode, Uri};
 use actix_web::{web, HttpResponse, Responder};
 use askama::Template;
 use log::{error, info, trace, warn};
-use std::str::FromStr;
+
 
 pub async fn get_index(
     invite: web::Query<InviteDTO>,

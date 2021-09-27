@@ -1,13 +1,13 @@
 use crate::Secret;
 use actix_web::http::Uri;
-use clap::{App, Arg, ArgMatches};
+use clap::{App, Arg};
 use log::trace;
-use lombok::{Builder, Getter};
+use lombok::{Builder};
 use serde::de::DeserializeOwned;
-use serde::Deserialize;
+
 use std::fs::File;
 use std::io::BufReader;
-use std::str::FromStr;
+
 use uuid::Uuid;
 
 pub const REDIRECT_URI: (&'static str, &str, &str) = ("REDIRECT_URI", "redirect-uri", "r");
