@@ -42,7 +42,7 @@ pub async fn get_index(
 }
 
 pub async fn post_index(
-    invite: web::Query<InviteDTO>,
+    _invite: web::Query<InviteDTO>,
     form: web::Form<RegisterFormDTO>,
     app_state: web::Data<AppState>,
     client: web::Data<Client>,
