@@ -1,7 +1,7 @@
-use askama::Template;
-use std::ops::Fn;
 use crate::app::{BASE_URI, SECRET_KEY};
+use askama::Template;
 use log::trace;
+use std::ops::Fn;
 
 #[allow(dead_code)]
 #[derive(Debug, Template)]

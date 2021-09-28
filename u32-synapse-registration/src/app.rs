@@ -1,7 +1,7 @@
 use crate::Secret;
 use actix_web::http::Uri;
 use clap::{App, Arg};
-use lombok::{Builder};
+use lombok::Builder;
 use serde::de::DeserializeOwned;
 
 use std::fs::File;

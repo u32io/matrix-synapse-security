@@ -4,9 +4,9 @@ use crate::view::{ErrorView, RegisterView};
 use actix_web::client::Client;
 use actix_web::dev::HttpResponseBuilder;
 use actix_web::http::{StatusCode, Uri};
-use actix_web::{web, HttpResponse, Responder,};
+use actix_web::{web, HttpResponse, Responder};
 use askama::Template;
-use log::{ trace, warn};
+use log::{trace, warn};
 
 pub async fn get_index(
     invite: web::Query<InviteDTO>,
@@ -19,7 +19,7 @@ pub async fn get_index(
     match client_secret.eq(secret.as_str()) {
         true => HttpResponse::Ok().content_type("text/html").body(
             RegisterView::default()
-                .with(|v|{
+                .with(|v| {
                     v.route = &app_state.conf.base_uri;
                     v.query_key = &app_state.conf.secret_key;
                     v.query_value = client_secret

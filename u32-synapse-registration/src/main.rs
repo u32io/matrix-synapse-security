@@ -4,7 +4,10 @@ use actix_web::{web, App, HttpServer};
 use log::{error, info};
 use simple_logger::SimpleLogger;
 use std::str::FromStr;
-use u32_synapse_registration::app::{init_cli, AppState, Config, DEFAULT_ADDRESS, IP, PORT, REDIRECT_URI, SECRET, SECRET_KEY, SYNAPSE_URI, BASE_URI, STATIC_PATH};
+use u32_synapse_registration::app::{
+    init_cli, AppState, Config, BASE_URI, DEFAULT_ADDRESS, IP, PORT, REDIRECT_URI, SECRET,
+    SECRET_KEY, STATIC_PATH, SYNAPSE_URI,
+};
 use u32_synapse_registration::{controller, Secret};
 
 #[actix_rt::main]
@@ -39,10 +42,18 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .data(app_state)
             .data(Client::default())
-            .route(config.base_uri.as_str(), web::get().to(controller::get_index))
-            .route(config.base_uri.as_str(), web::post().to(controller::post_index))
-            .service(actix_files::Files::new("/static", config.static_path.as_str())
-                .show_files_listing())
+            .route(
+                config.base_uri.as_str(),
+                web::get().to(controller::get_index),
+            )
+            .route(
+                config.base_uri.as_str(),
+                web::post().to(controller::post_index),
+            )
+            .service(
+                actix_files::Files::new("/static", config.static_path.as_str())
+                    .show_files_listing(),
+            )
     });
     info!("Server instantiated");
 
