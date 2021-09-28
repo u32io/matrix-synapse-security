@@ -1,7 +1,6 @@
 use crate::Secret;
 use actix_web::http::Uri;
 use clap::{App, Arg};
-use log::trace;
 use lombok::{Builder};
 use serde::de::DeserializeOwned;
 
@@ -65,11 +64,19 @@ fn secret_arg<'a, 'b>(secret: &'a str) -> Arg<'a, 'b> {
 }
 
 /// path the user must navigate to in order to create an acc
-pub const URI_PATH: (&'static str, &str, &str) = ("URI_PATH", "uri-path", "register");
-fn uri_path_arg() -> Arg<'static, 'static> {
-    Arg::with_name(URI_PATH.0)
-        .long(URI_PATH.1)
-        .default_value(URI_PATH.2)
+pub const BASE_URI: (&'static str, &str, &str) = ("base_uri", "uri-path", "/register");
+fn base_uri_arg() -> Arg<'static, 'static> {
+    Arg::with_name(BASE_URI.0)
+        .long(BASE_URI.1)
+        .default_value(BASE_URI.2)
+        .takes_value(true)
+}
+
+pub const STATIC_PATH: (&'static str, &str, &str) = ("STATIC", "static", "/static");
+fn static_path_arg() -> Arg<'static, 'static> {
+    Arg::with_name(STATIC_PATH.0)
+        .long(STATIC_PATH.1)
+        .default_value(STATIC_PATH.2)
         .takes_value(true)
 }
 
@@ -87,8 +94,9 @@ pub fn init_cli<'a, 'b>(secret: &'a Secret) -> App<'a, 'b> {
         .arg(ip_arg())
         .arg(port_arg())
         .arg(secret_arg(&secret.0))
-        .arg(uri_path_arg())
+        .arg(base_uri_arg())
         .arg(secret_key_arg())
+        .arg(static_path_arg())
 }
 
 #[derive(Debug, Clone, Builder)]
@@ -97,22 +105,23 @@ pub struct Config {
     pub port: String,
     pub secret_key: String,
     pub secret: Secret,
-    pub uri_path: String,
+    pub base_uri: String,
     pub redirect: Uri,
     pub synapse: Uri,
+    pub static_path: String,
 }
 
 impl Default for Config {
     fn default() -> Self {
-        trace!("DEFAULT_ADDRESS={}", DEFAULT_ADDRESS);
         Config {
             ip: IP.2.to_string(),
             port: PORT.3.to_string(),
             secret_key: SECRET_KEY.3.to_string(),
             secret: Secret(Uuid::new_v4().to_string()),
-            uri_path: URI_PATH.2.to_string(),
+            base_uri: BASE_URI.2.to_string(),
             redirect: Uri::from_static(DEFAULT_ADDRESS),
             synapse: Uri::from_static(DEFAULT_ADDRESS),
+            static_path: STATIC_PATH.2.to_string(),
         }
     }
 }

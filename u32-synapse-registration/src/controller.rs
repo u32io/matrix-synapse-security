@@ -4,10 +4,9 @@ use crate::view::{ErrorView, RegisterView};
 use actix_web::client::Client;
 use actix_web::dev::HttpResponseBuilder;
 use actix_web::http::{StatusCode, Uri};
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder,};
 use askama::Template;
-use log::{error, info, trace, warn};
-
+use log::{ trace, warn};
 
 pub async fn get_index(
     invite: web::Query<InviteDTO>,
@@ -20,7 +19,11 @@ pub async fn get_index(
     match client_secret.eq(secret.as_str()) {
         true => HttpResponse::Ok().content_type("text/html").body(
             RegisterView::default()
-                .with(|v| v.query_value = client_secret)
+                .with(|v|{
+                    v.route = &app_state.conf.base_uri;
+                    v.query_key = &app_state.conf.secret_key;
+                    v.query_value = client_secret
+                })
                 .render()
                 .unwrap(),
         ),
@@ -39,6 +42,7 @@ pub async fn get_index(
 }
 
 pub async fn post_index(
+    invite: web::Query<InviteDTO>,
     form: web::Form<RegisterFormDTO>,
     app_state: web::Data<AppState>,
     client: web::Data<Client>,
@@ -50,6 +54,7 @@ pub async fn post_index(
             RegisterView::default()
                 .with(|v| {
                     v.pass_mismatch = true;
+                    v.route = &app_state.conf.base_uri;
                     v.query_key = &app_state.conf.secret_key;
                 })
                 .render()
@@ -85,7 +90,7 @@ async fn forward_req<'view>(
 
     let res = client.post(uri).send_json(&dto).await;
     if res.is_err() {
-        error!("{:?}", res.unwrap_err());
+        warn!("{:?}", res.unwrap_err());
         return Err(ErrorView::new(
             StatusCode::BAD_GATEWAY.as_u16(),
             "Unable to reach synapse".to_string(),
@@ -95,7 +100,7 @@ async fn forward_req<'view>(
     let mut res = res.unwrap();
     let body = res.body().await;
     if body.is_err() {
-        error!("{:?}", body.unwrap_err());
+        warn!("{:?}", body.unwrap_err());
         return Err(ErrorView::new(
             StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
             "An error occurred while decoding the response body".to_string(),
@@ -105,7 +110,7 @@ async fn forward_req<'view>(
     let body = String::from_utf8_lossy(body.as_ref());
 
     if StatusCode::BAD_REQUEST == res.status() {
-        error!("status={} body={}", StatusCode::BAD_REQUEST, body);
+        warn!("status={} body={}", StatusCode::BAD_REQUEST, body);
         return Err(ErrorView::new(
             StatusCode::BAD_REQUEST.as_u16(),
             format!("Message from Synapse: {}", body),
@@ -114,7 +119,7 @@ async fn forward_req<'view>(
 
     println!("Client Response: {} {}", res.status(), body);
     if StatusCode::OK != res.status() {
-        error!("status={}", res.status());
+        warn!("status={}", res.status());
         return Err(ErrorView::new(
             StatusCode::BAD_GATEWAY.as_u16(),
             format!("Gateway responded with: {}", res.status()),

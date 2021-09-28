@@ -1,11 +1,13 @@
 use askama::Template;
 use std::ops::Fn;
+use crate::app::{BASE_URI, SECRET_KEY};
+use log::trace;
 
-#[derive(Template)]
+#[allow(dead_code)]
+#[derive(Debug, Template)]
 #[template(path = "index.html")]
 pub struct RegisterView<'view> {
-    title: &'view str,
-    view: &'view str,
+    pub route: &'view str,
     pub pass_mismatch: bool,
     pub query_key: &'view str,
     pub query_value: &'view str,
@@ -14,11 +16,9 @@ pub struct RegisterView<'view> {
 impl Default for RegisterView<'_> {
     fn default() -> Self {
         Self {
-            // TODO: either make these values const or configurable
-            title: "Register",
-            view: "register",
+            route: BASE_URI.2,
             pass_mismatch: false,
-            query_key: "invitation",
+            query_key: SECRET_KEY.3,
             query_value: "",
         }
     }
@@ -30,6 +30,7 @@ impl<'view> RegisterView<'view> {
         F: Fn(&mut Self) -> (),
     {
         f(&mut self);
+        trace!("register view instantiated: {:?}", &self);
         self
     }
 }
