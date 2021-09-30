@@ -64,7 +64,7 @@ pub async fn post_index(
         let result = forward_req(
             &client,
             RegisterDTO::new_default(form.user_name.clone(), form.password.clone()),
-            &app_state.conf.redirect,
+            &app_state.conf.synapse,
         )
         .await;
 
